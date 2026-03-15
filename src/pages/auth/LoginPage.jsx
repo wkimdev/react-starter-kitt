@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Link, useNavigate } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,6 +24,7 @@ const loginSchema = z.object({
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { setAuth } = useAuthStore()
 
   const form = useForm({
@@ -38,7 +39,8 @@ export default function LoginPage() {
       await new Promise((r) => setTimeout(r, 800))
       setAuth({ user: { name: '테스트 유저', email: values.email }, token: 'demo-token' })
       toast.success('로그인 성공!')
-      navigate('/dashboard')
+      const redirect = searchParams.get('redirect') || '/dashboard'
+      navigate(redirect)
     } catch {
       toast.error('로그인에 실패했습니다.')
     }

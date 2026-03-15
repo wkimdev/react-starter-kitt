@@ -12,6 +12,8 @@ import SettingsPage from '@/pages/dashboard/SettingsPage'
 import LoginPage from '@/pages/auth/LoginPage'
 import RegisterPage from '@/pages/auth/RegisterPage'
 import NotFoundPage from '@/pages/NotFoundPage'
+import ErrorPage from '@/pages/ErrorPage'
+import ProtectedRoute from '@/components/common/ProtectedRoute'
 
 export const router = createBrowserRouter([
   {
@@ -26,7 +28,8 @@ export const router = createBrowserRouter([
   },
   {
     path: '/dashboard',
-    element: <DashboardLayout />,
+    element: <ProtectedRoute><DashboardLayout /></ProtectedRoute>,
+    errorElement: <ErrorPage />,
     children: [
       { index: true, element: <DashboardPage /> },
       { path: 'analytics', element: <AnalyticsPage /> },
@@ -36,6 +39,7 @@ export const router = createBrowserRouter([
   },
   {
     element: <AuthLayout />,
+    errorElement: <ErrorPage />,
     children: [
       { path: 'login', element: <LoginPage /> },
       { path: 'register', element: <RegisterPage /> },

@@ -23,22 +23,25 @@ const navLinks = [
   { href: '/dashboard', label: '대시보드' },
 ]
 
-export default function Header() {
-  const location = useLocation()
-  const { user, clearAuth } = useAuthStore()
-
-  const NavLink = ({ href, label, onClick }) => (
+// NavLink 컴포넌트를 Header 외부에서 정의
+const NavLink = ({ href, label, onClick }) => {
+  const { pathname } = useLocation()
+  return (
     <Link
       to={href}
       onClick={onClick}
       className={cn(
         'text-sm font-medium transition-colors hover:text-primary',
-        location.pathname === href ? 'text-primary' : 'text-muted-foreground'
+        pathname === href ? 'text-primary' : 'text-muted-foreground'
       )}
     >
       {label}
     </Link>
   )
+}
+
+export default function Header() {
+  const { user, clearAuth } = useAuthStore()
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

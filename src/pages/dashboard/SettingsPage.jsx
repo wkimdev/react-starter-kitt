@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -7,7 +10,108 @@ import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
 import PageHeader from '@/components/common/PageHeader'
+
+// 비밀번호 변경 유효성 스키마
+const passwordSchema = z
+  .object({
+    currentPassword: z.string().min(1, '현재 비밀번호를 입력하세요.'),
+    newPassword: z.string().min(8, '새 비밀번호는 8자 이상이어야 합니다.'),
+    confirmPassword: z.string().min(1, '비밀번호 확인을 입력하세요.'),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: '새 비밀번호가 일치하지 않습니다.',
+    path: ['confirmPassword'],
+  })
+
+// 보안 탭 컴포넌트
+function SecurityTabContent({ handleSave }) {
+  const form = useForm({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    },
+  })
+
+  const onSubmit = async (values) => {
+    try {
+      // 실제 API 연동 시 api.post('/auth/change-password', values) 사용
+      // 데모용 더미 처리
+      await new Promise((r) => setTimeout(r, 800))
+      form.reset()
+      handleSave()
+    } catch {
+      toast.error('비밀번호 변경에 실패했습니다.')
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>비밀번호 변경</CardTitle>
+        <CardDescription>정기적으로 비밀번호를 변경하면 계정을 안전하게 유지할 수 있습니다.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="currentPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>현재 비밀번호</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="newPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>새 비밀번호</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>비밀번호 확인</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? '변경 중...' : '변경'}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  )
+}
 
 export default function SettingsPage() {
   const [notifications, setNotifications] = useState({
@@ -92,27 +196,7 @@ export default function SettingsPage() {
 
         {/* 보안 탭 */}
         <TabsContent value="security">
-          <Card>
-            <CardHeader>
-              <CardTitle>비밀번호 변경</CardTitle>
-              <CardDescription>정기적으로 비밀번호를 변경하면 계정을 안전하게 유지할 수 있습니다.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="current-pw">현재 비밀번호</Label>
-                <Input id="current-pw" type="password" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="new-pw">새 비밀번호</Label>
-                <Input id="new-pw" type="password" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirm-pw">비밀번호 확인</Label>
-                <Input id="confirm-pw" type="password" />
-              </div>
-              <Button onClick={handleSave}>변경</Button>
-            </CardContent>
-          </Card>
+          <SecurityTabContent handleSave={handleSave} />
         </TabsContent>
       </Tabs>
     </div>
